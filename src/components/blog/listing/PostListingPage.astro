@@ -18,7 +18,7 @@ const { title, description, heading = title, intro, posts, activeTag } = Astro.p
 
 <Layout {title} {description}>
   <Container class="space-y-6 py-16 md:py-20">
-    <h1>{heading}</h1>
+    <h1 class="heading-1">{heading}</h1>
     {intro && <p class="max-w-3xl text-zinc-600">{intro}</p>}
     <PostGrid posts={posts} activeTag={activeTag} />
   </Container>

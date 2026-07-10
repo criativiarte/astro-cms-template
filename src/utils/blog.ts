@@ -1,4 +1,5 @@
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import slugify from "slugify";
 
 export type Post = CollectionEntry<"blog">;
@@ -7,13 +8,12 @@ export interface PostData {
   title: string;
   slug: string;
   status: string;
-  description?: string;
+  description: string;
   author?: string;
   tags: string[];
-  createdTime: Date;
-  lastEditedTime?: Date;
-  cover?: Post["data"]["heroImage"] | null;
-  coverAlt?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  coverImage?: Post["data"]["coverImage"] | null;
 }
 
 export interface TagArchive {
@@ -26,8 +26,17 @@ export function isPublishedPost(post: Post) {
   return post.data.status.trim().toLowerCase() === "publicado";
 }
 
+function slugifyValue(value: string) {
+  return slugify(value, {
+    lower: true,
+    strict: true,
+    trim: true,
+    locale: "pt",
+  });
+}
+
 export function getPostSlug(post: Post) {
-  return post.data.slug?.trim() || post.id.replace(/\/index$/, "");
+  return slugifyValue(post.data.title);
 }
 
 export function getPostData(post: Post): PostData {
@@ -38,17 +47,16 @@ export function getPostData(post: Post): PostData {
     description: post.data.description,
     author: post.data.author,
     tags: post.data.tags,
-    createdTime: post.data.pubDate,
-    lastEditedTime: post.data.updatedDate,
-    cover: post.data.heroImage,
-    coverAlt: post.data.coverAlt ?? post.data.title,
+    pubDate: post.data.pubDate,
+    updatedDate: post.data.updatedDate,
+    coverImage: post.data.coverImage,
   };
 }
 
 export function sortPostsByDate(posts: Post[]) {
   return [...posts].sort((a, b) => {
-    const aTime = getPostData(a).createdTime.getTime();
-    const bTime = getPostData(b).createdTime.getTime();
+    const aTime = getPostData(a).pubDate.getTime();
+    const bTime = getPostData(b).pubDate.getTime();
 
     return bTime - aTime;
   });
@@ -61,12 +69,7 @@ export async function getPublishedPosts() {
 }
 
 export function getTagSlug(tag: string) {
-  return slugify(tag, {
-    lower: true,
-    strict: true,
-    trim: true,
-    locale: "pt",
-  });
+  return slugifyValue(tag);
 }
 
 export function getTagPath(tag: string) {

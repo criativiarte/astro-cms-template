@@ -10,82 +10,55 @@ import Tags from "@/components/blog/post/Tags.astro";
 
 export type Props = {
   title: string;
-  slug: string;
-  createdTime: Date;
-  lastEditedTime?: Date;
-  cover?: ImageMetadata | string | null;
+  pubDate: Date;
+  updatedDate?: Date;
+  coverImage?: ImageMetadata | null;
   author?: string;
   tags?: string[];
-  coverAlt?: string;
 };
 
 const {
   title,
-  slug,
-  createdTime,
-  lastEditedTime,
-  cover,
-  coverAlt = title,
+  pubDate,
+  updatedDate,
+  coverImage,
   author,
   tags = [],
 } = Astro.props;
-
-const createdDate = createdTime.toISOString().slice(0, 10);
-const lastEditedDate = lastEditedTime?.toISOString().slice(0, 10);
-const publicCover = typeof cover === "string" ? cover : undefined;
-const optimizedCover = typeof cover === "string" ? undefined : cover;
 ---
 
 <article class="py-16 md:py-20 space-y-6">
   <Container class="max-w-5xl">
     <figure class="space-y-4">
-      {
-        publicCover ? (
-          <img
-            width="1024"
-            height="576"
-            src={publicCover}
-            alt={coverAlt}
-            decoding="async"
-            loading="eager"
-            fetchpriority="high"
-            class="aspect-video w-full rounded-lg object-cover object-center"
-            transition:name={`${slug}-cover`}
-          />
-        ) : (
-          <Image
-            width={1024}
-            widths={[670, 960, 1024]}
-            sizes="(min-width: 1138px) 1024px, 90vw"
-            src={optimizedCover ?? placeholder}
-            alt={coverAlt}
-            decoding="async"
-            loading="eager"
-            fetchpriority="high"
-            format="webp"
-            class="aspect-video w-full rounded-lg object-cover object-center"
-            transition:name={`${slug}-cover`}
-          />
-        )
-      }
+      <Image
+        width={1024}
+        widths={[670, 960, 1024]}
+        sizes="(min-width: 1138px) 1024px, 90vw"
+        src={coverImage ?? placeholder}
+        alt={title}
+        decoding="async"
+        loading="eager"
+        fetchpriority="high"
+        format="webp"
+        class="aspect-video w-full rounded-lg object-cover object-center"
+      />
       <figcaption
         class="flex flex-col gap-1 text-sm text-zinc-500 md:flex-row md:justify-between"
       >
         <div class="space-y-1 md:space-y-0">
           {
-            createdTime && (
+            pubDate && (
               <div>
-                Criado em <FormattedDate date={createdTime} />
+                Publicado em <FormattedDate date={pubDate} />
               </div>
             )
           }
           {
-            lastEditedTime &&
-              lastEditedDate !== createdDate && (
-                <div>
-                  Atualizado em <FormattedDate date={lastEditedTime} />
-                </div>
-              )
+            updatedDate && (
+              <div>
+                Atualizado em <FormattedDate date={updatedDate} />
+              </div>
+            )
           }
         </div>
         {author && <span>Por {author}</span>}
@@ -93,7 +66,7 @@ const optimizedCover = typeof cover === "string" ? undefined : cover;
     </figure>
   </Container>
   <Container class="flex flex-col items-center space-y-6">
-    <h1 class="w-full max-w-3xl wrap-break-word text-center">{title}</h1>
+    <h1 class="heading-1 w-full max-w-3xl wrap-break-word text-center">{title}</h1>
     <Tags tags={tags} class="justify-center" />
     <div class="post-content js-post-content">
       <slot />

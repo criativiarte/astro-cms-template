@@ -1,12 +1,11 @@
 ---
-title: "Post de exemplo"
-slug: "post-de-exemplo"
-status: "Publicado"
-pubDate: "2026-01-01T00:00:00.000Z"
-description: "Um post inicial para visualizar o blog assim que o template abre."
-heroImage: null
-coverAlt: "Imagem padrao do post"
-author: "Template"
+status: Publicado
+title: Post de exemplo
+pubDate: 2026-01-01T00:00:00.000Z
+updatedDate: ""
+description: Um post inicial para visualizar o blog assim que o template abre.
+coverImage: null
+author: Template
 tags:
   - Astro
   - Sveltia CMS

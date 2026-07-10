@@ -113,11 +113,6 @@ jobs:
             exit 1
           fi
 
-          if [ ! -f dist/admin/index.html ] || [ ! -f dist/admin/config.yml ]; then
-            echo "Static CMS admin files were not generated."
-            exit 1
-          fi
-
       - name: Create deployment archive
         run: |
           if ! tar -czf dist.tar.gz -C dist .; then

@@ -5,6 +5,16 @@ import { z } from "astro/zod";
 const emptyToUndefined = (value: unknown) =>
   value === "" || value === null ? undefined : value;
 
+const repoAssetPathToRelative = (value: unknown) => {
+  const normalizedValue = emptyToUndefined(value);
+
+  if (typeof normalizedValue !== "string") {
+    return normalizedValue;
+  }
+
+  return normalizedValue.replace(/^\/?src\/assets\//, "../../assets/");
+};
+
 const blog = defineCollection({
   loader: glob({
     base: "./src/content/blog",
@@ -13,16 +23,11 @@ const blog = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
-      description: z.string().optional(),
-      slug: z.string().optional(),
+      description: z.string(),
       status: z.preprocess(emptyToUndefined, z.string().default("Publicado")),
       pubDate: z.coerce.date(),
       updatedDate: z.preprocess(emptyToUndefined, z.coerce.date().optional()),
-      heroImage: z.preprocess(
-        emptyToUndefined,
-        z.union([image(), z.string()]).optional(),
-      ),
-      coverAlt: z.string().optional(),
+      coverImage: z.preprocess(repoAssetPathToRelative, image().optional()),
       author: z.string().optional(),
       tags: z.preprocess(
         (value) => (Array.isArray(value) ? value : []),

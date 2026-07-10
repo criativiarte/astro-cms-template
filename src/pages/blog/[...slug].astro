@@ -5,13 +5,12 @@ import PostContent from "@/components/blog/post/PostContent.astro";
 import PostHead from "@/components/seo/PostHead.astro";
 import placeholder from "@/assets/post-placeholder.png";
 import { getPostData, getPublishedPosts, type Post } from "@/utils/blog";
-import { getFirstParagraphFromMarkdown } from "@/utils/markdown";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
 
   return posts.map((post) => ({
-    params: { slug: post.data.slug },
+    params: { slug: getPostData(post).slug },
     props: { post },
   }));
 }
@@ -19,19 +18,15 @@ export async function getStaticPaths() {
 const { post } = Astro.props as { post: Post };
 const postData = getPostData(post);
 const { Content } = await render(post);
-const description =
-  postData.description ?? getFirstParagraphFromMarkdown(post.body ?? "");
-const imageURL =
-  typeof postData.cover === "string"
-    ? postData.cover
-    : postData.cover?.src ?? placeholder.src;
+const description = postData.description;
+const imageURL = postData.coverImage?.src ?? placeholder.src;
 ---
 
 <Layout
   title={postData.title}
   {description}
   {imageURL}
-  imageAlt={postData.coverAlt}
+  imageAlt={postData.title}
   canonicalURL={`/blog/${postData.slug}/`}
   openGraphType="article"
 >
@@ -41,21 +36,19 @@ const imageURL =
     slug={postData.slug}
     {description}
     {imageURL}
-    publishedTime={postData.createdTime}
-    modifiedTime={postData.lastEditedTime}
+    publishedTime={postData.pubDate}
+    modifiedTime={postData.updatedDate}
     author={postData.author}
     tags={postData.tags}
   />
 
   <PostContent
     title={postData.title}
-    slug={postData.slug}
-    createdTime={postData.createdTime}
+    pubDate={postData.pubDate}
+    updatedDate={postData.updatedDate}
     author={postData.author}
     tags={postData.tags}
-    lastEditedTime={postData.lastEditedTime}
-    cover={postData.cover}
-    coverAlt={postData.coverAlt}
+    coverImage={postData.coverImage}
   >
     <Content />
   </PostContent>

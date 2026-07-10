@@ -1,12 +1,9 @@
 {
-  "name": "astro-static-cms",
+  "name": "astro-sveltia-cms-template",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "cms:config": "node scripts/generate-cms-config.mjs",
-    "predev": "npm run cms:config",
-    "prebuild": "npm run cms:config",
     "build": "astro build",
     "check": "astro check",
     "preview": "astro preview"
@@ -22,11 +19,5 @@
     "@astrojs/check": "^0.9.9",
     "@types/node": "^26.0.0",
     "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "devalue": "^5.8.1",
-    "path-to-regexp": "^6.3.0",
-    "postcss": "^8.5.15",
-    "yauzl": "^3.2.1"
   }
 }

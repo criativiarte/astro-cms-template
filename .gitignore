@@ -2,7 +2,6 @@
 dist/
 # generated types
 .astro/
-public/admin/config.yml
 
 # dependencies
 node_modules/
@@ -18,6 +17,12 @@ pnpm-debug.log*
 .env
 .env.production
 .env.local
+
+# local SSH keys
+*_deploy
+*_deploy.pub
+id_*
+*.pem
 
 # macOS-specific files
 .DS_Store

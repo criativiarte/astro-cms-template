@@ -1,4 +1,4 @@
-# Astro + Sveltia CMS
+# Astro + Sveltia CMS Template
 
 Template Astro estatico com blog em Content Collections e painel administrativo em `/admin/`.
 
@@ -10,9 +10,34 @@ Esta versao usa login por token manual do GitHub. Nao ha OAuth App, PHP, servido
 
 - `src/content/blog`: posts em Markdown/MDX.
 - `public/admin`: painel Sveltia CMS carregado por CDN.
-- `public/images/blog`: uploads de imagens do CMS.
-- `scripts/generate-cms-config.mjs`: gera `public/admin/config.yml` usando `.env`.
+- `src/assets/blog`: uploads de imagens de capa do CMS, processados pelo Astro.
 - `.github/workflows/ci-cd-static-pipeline.yml`: build e deploy por SSH/SCP.
+
+## Configuracao do CMS
+
+Antes de publicar o template, abra `public/admin/config.yml` e substitua os placeholders:
+
+```yml
+repo: "<usuario-ou-org>/<repositorio>"
+branch: "<branch>"
+site_url: "<url-do-site>"
+```
+
+Exemplo:
+
+```yml
+repo: "criativiarte/astro-sveltia-cms-template"
+branch: "main"
+site_url: "https://seu-dominio.com"
+```
+
+Esses valores nao sao secretos; o navegador precisa deles para o CMS saber em qual repositorio salvar os posts.
+
+Depois, abra `astro.config.mjs` e troque a URL pública usada pelo Astro, RSS e sitemap:
+
+```js
+site: "https://seu-dominio.com",
+```
 
 ## Token do GitHub
 
@@ -26,10 +51,10 @@ Configuracao recomendada:
 
 ```txt
 Token name:
-CMS do Blog
+CMS - nome-do-repositorio
 
 Expiration:
-90 dias, 180 dias ou uma data combinada com o cliente
+180 dias, 366 dias ou uma data combinada com o cliente
 
 Resource owner:
 usuario ou organizacao dona do repositorio
@@ -38,7 +63,7 @@ Repository access:
 Only selected repositories
 
 Selected repository:
-astro-static-cms
+nome-do-repositorio
 
 Repository permissions:
 Contents: Read and write
@@ -59,20 +84,20 @@ Use a opcao de entrar com token e cole o token gerado. O token fica salvo no nav
 
 ```yaml
 title: "Titulo do post"
-slug: "titulo-do-post"
 status: "Publicado"
 pubDate: "2026-01-01T00:00:00.000Z"
 updatedDate: "2026-01-02T00:00:00.000Z"
 description: "Resumo usado em SEO e listagens."
-heroImage: "/images/blog/capa.png"
-coverAlt: "Descricao da imagem"
+coverImage: "/src/assets/blog/capa.png"
 author: "Equipe"
 tags:
   - Astro
   - Sveltia CMS
 ```
 
-`slug` e `updatedDate` sao opcionais. Posts com `status: "Rascunho"` nao aparecem no site.
+O slug do post e gerado automaticamente a partir do titulo pelo CMS, como nome do arquivo Markdown. `updatedDate` e opcional, manual e nao recebe valor automatico. Posts com `status: "Rascunho"` nao aparecem no site.
+
+As imagens de capa enviadas pelo CMS sao salvas em `src/assets/blog`. O CMS grava o caminho como `/src/assets/blog/...`, e o schema do Astro normaliza esse valor para um asset local durante o build. Assim o Astro consegue processar e otimizar a imagem.
 
 ## Comandos
 
@@ -84,17 +109,4 @@ npm run build
 npm run preview
 ```
 
-`npm run dev` e `npm run build` geram automaticamente `public/admin/config.yml`.
-
-## Variaveis
-
-Copie `.env.example` para `.env` no ambiente local ou mantenha `~/.env` no servidor, como o workflow ja faz.
-
-```env
-SITE_URL=https://meusite.com
-GITHUB_OWNER=usuario-ou-org
-GITHUB_REPO=nome-do-repo
-BRANCH=main
-```
-
-Essas variaveis nao sao secretas. Elas servem apenas para gerar o `config.yml` do painel com o repositorio e branch corretos.
+A data/hora de publicacao e preenchida automaticamente quando um post e criado no CMS. A data/hora de atualizacao e manual, opcional e deve ser preenchida apenas quando fizer sentido editorialmente.

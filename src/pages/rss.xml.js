@@ -12,8 +12,10 @@ export async function GET(context) {
 			const postData = getPostData(post);
 
 			return {
-				...postData,
+				title: postData.title,
+				description: postData.description,
 				link: `/blog/${postData.slug}/`,
+				pubDate: postData.pubDate,
 			};
 		}),
 	});

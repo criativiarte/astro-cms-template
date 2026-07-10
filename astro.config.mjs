@@ -3,7 +3,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: process.env.SITE_URL || "http://localhost:4321",
+  // Troque pela URL pública do site antes do deploy.
+  site: "https://seu-dominio.com",
   integrations: [sitemap()],
   output: "static",
   experimental: {

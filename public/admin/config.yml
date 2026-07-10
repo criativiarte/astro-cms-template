@@ -1,0 +1,94 @@
+backend:
+  name: github
+  # Troque pelo owner/repositório real.
+  # Exemplos:
+  # - usuario/nome-do-repositorio
+  # - organizacao/nome-do-repositorio
+  repo: "<usuario-ou-org>/<repositorio>"
+
+  # Troque pela branch usada para publicar o site.
+  # Exemplo: main
+  branch: "<branch>"
+
+# Troque pela URL pública do site.
+# Exemplo: https://seu-dominio.com
+site_url: "<url-do-site>"
+
+media_folder: /src/assets/blog
+public_folder: /src/assets/blog
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Post
+    folder: src/content/blog
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    summary: "{{title}} - {{pubDate}}"
+    fields:
+      - label: Status
+        name: status
+        widget: select
+        default: Publicado
+        options:
+          - Publicado
+          - Rascunho
+
+      - label: Titulo
+        name: title
+        widget: string
+        required: true
+
+      - label: Data de Publicacao
+        name: pubDate
+        widget: datetime
+        required: true
+        default: "{{now}}"
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+        format: "YYYY-MM-DDTHH:mm:ss.SSSZ"
+
+      - label: Data de Atualizacao
+        name: updatedDate
+        widget: datetime
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: "HH:mm"
+        format: "YYYY-MM-DDTHH:mm:ss.SSSZ"
+
+      - label: Descricao
+        name: description
+        widget: text
+        required: true
+
+      - label: Imagem de Capa
+        name: coverImage
+        widget: image
+        required: false
+
+      - label: Autor
+        name: author
+        widget: string
+        required: false
+
+      - label: Tags
+        name: tags
+        widget: list
+        required: false
+        field:
+          label: Tag
+          name: tag
+          widget: string
+
+      - label: Corpo do texto
+        name: body
+        widget: markdown
+        required: true
