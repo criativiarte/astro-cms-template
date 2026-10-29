@@ -4,8 +4,13 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   // Troque pela URL pública do site antes do deploy.
-  site: "https://seu-dominio.com",
-  integrations: [sitemap()],
+  site: "http://seu-dominio.com",
+  integrations: [
+    sitemap({
+      // Exclui o painel administrativo e qualquer rota dentro dele.
+      filter: (page) => !/^\/admin(?:\/|$)/.test(new URL(page).pathname),
+    }),
+  ],
   output: "static",
   compressHTML: true,
   fonts: [
