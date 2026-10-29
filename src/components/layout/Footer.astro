@@ -4,9 +4,14 @@ const today = new Date();
 
 <footer class="border-t border-zinc-200 bg-white">
   <div
-    class="mx-auto flex max-w-5xl items-center justify-between px-5 py-6 text-sm text-zinc-500"
+    class="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-6 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between"
   >
     <span>&copy; {today.getFullYear()} ASTRO + SVELTIA CMS.</span>
-    <a class="hover:text-zinc-950" href="/rss.xml" target="_blank">RSS</a>
+    <nav aria-label="Links do rodapé" class="flex flex-wrap gap-x-6 gap-y-2">
+      <a class="hover:text-zinc-950" href="/politica-de-privacidade/">
+        Política de Privacidade
+      </a>
+      <a class="hover:text-zinc-950" href="/rss.xml" target="_blank">RSS</a>
+    </nav>
   </div>
 </footer>
