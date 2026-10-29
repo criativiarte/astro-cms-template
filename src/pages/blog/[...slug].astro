@@ -32,10 +32,6 @@ const imageURL = postData.coverImage?.src ?? placeholder.src;
 >
   <PostHead
     slot="head"
-    title={postData.title}
-    slug={postData.slug}
-    {description}
-    {imageURL}
     publishedTime={postData.pubDate}
     modifiedTime={postData.updatedDate}
     author={postData.author}

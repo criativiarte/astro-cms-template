@@ -8,26 +8,37 @@ Esta versao usa login por token manual do GitHub. Nao ha OAuth App, PHP, servido
 
 ## Estrutura
 
+- `src/pages/index.astro`: home com conteúdo fixo diretamente no HTML.
+- `src/pages/admin/index.astro`: página do painel Sveltia CMS, carregado por CDN.
 - `src/content/blog`: posts em Markdown/MDX.
-- `public/admin`: painel Sveltia CMS carregado por CDN.
+- `src/content.config.ts`: schema de validação dos posts.
+- `public/admin/config.yml`: configuração do Sveltia CMS, servida em `/admin/config.yml`.
 - `src/assets/blog`: uploads de imagens de capa do CMS, processados pelo Astro.
 - `.github/workflows/ci-cd-static-pipeline.yml`: build e deploy por SSH/SCP.
 
 ## Configuracao do CMS
 
-Antes de publicar o template, abra `public/admin/config.yml`, substitua os placeholders de `repo` e `branch` e troque a URL local em `site_url` pelo domínio público do site:
+Antes de publicar o template, abra `public/admin/config.yml`, informe o repositório e a branch de publicação e substitua a URL de exemplo em `site_url` pelo domínio público do site. Os valores iniciais são:
 
 ```yml
-repo: "<usuario-ou-org>/<repositorio>"
-branch: "<branch>"
-site_url: "http://localhost:4321"
+backend:
+  name: github
+  auth_methods: [token]
+  repo: "usuario-ou-org/nome-do-repositorio"
+  branch: "main"
+
+site_url: "http://seu-dominio.com"
 ```
 
 Exemplo:
 
 ```yml
-repo: "criativiarte/astro-sveltia-cms-template"
-branch: "main"
+backend:
+  name: github
+  auth_methods: [token]
+  repo: "criativiarte/astro-sveltia-cms-template"
+  branch: "main"
+
 site_url: "https://seu-dominio.com"
 ```
 
@@ -38,6 +49,10 @@ Depois, abra `astro.config.mjs` e troque a URL pública usada pelo Astro, RSS e 
 ```js
 site: "https://seu-dominio.com",
 ```
+
+Para desenvolvimento local, execute `npm run dev` e acesse `http://localhost:4321/admin/`. Se quiser que os links do CMS apontem para o site local, use `site_url: "http://localhost:4321"` durante o desenvolvimento.
+
+O título e a logo do CMS são definidos por `app_title` e `logo` em `public/admin/config.yml`. O admin tem `noindex` e fica fora do sitemap.
 
 ## Token do GitHub
 
@@ -95,7 +110,9 @@ tags:
   - Sveltia CMS
 ```
 
-O slug do post e gerado automaticamente a partir do titulo pelo CMS, como nome do arquivo Markdown. `updatedDate` e opcional, manual e nao recebe valor automatico. Posts com `status: "Rascunho"` nao aparecem no site.
+Título e descrição são obrigatórios e não podem ficar vazios ou conter apenas espaços. O schema remove espaços no início e no fim desses campos. O status aceita somente `Publicado` ou `Rascunho`; se estiver ausente, vazio ou nulo, assume `Publicado`. Valores inválidos são rejeitados na validação do conteúdo.
+
+O slug do post e gerado automaticamente a partir do titulo pelo CMS, como nome do arquivo Markdown. O Astro também calcula a URL a partir do título, portanto alterar o título altera a URL do post. `updatedDate` e opcional, manual e nao recebe valor automatico. Posts com `status: "Rascunho"` nao aparecem no site.
 
 As imagens de capa enviadas pelo CMS sao salvas em `src/assets/blog`. O CMS grava o caminho como `/src/assets/blog/...`, e o schema do Astro normaliza esse valor para um asset local durante o build. Assim o Astro consegue processar e otimizar a imagem.
 

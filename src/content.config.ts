@@ -22,9 +22,12 @@ const blog = defineCollection({
   }),
   schema: ({ image }) =>
     z.object({
-      title: z.string(),
-      description: z.string(),
-      status: z.preprocess(emptyToUndefined, z.string().default("Publicado")),
+      title: z.string().trim().min(1, "O título não pode ficar vazio."),
+      description: z.string().trim().min(1, "A descrição não pode ficar vazia."),
+      status: z.preprocess(
+        emptyToUndefined,
+        z.enum(["Publicado", "Rascunho"]).default("Publicado"),
+      ),
       pubDate: z.coerce.date(),
       updatedDate: z.preprocess(emptyToUndefined, z.coerce.date().optional()),
       coverImage: z.preprocess(repoAssetPathToRelative, image().optional()),

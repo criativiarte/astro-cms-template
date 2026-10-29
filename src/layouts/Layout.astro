@@ -5,22 +5,29 @@ import BaseHead from "@/components/seo/BaseHead.astro";
 import type { Props as BaseHeadProps } from "@/components/seo/BaseHead.astro";
 import Footer from "@/components/layout/Footer.astro";
 import Header from "@/components/layout/Header.astro";
-import { Font } from "astro:assets";
+import {
+  SITE_DESCRIPTION as site_description,
+  SITE_IMAGE as site_image,
+  SITE_TITLE as siteTitle,
+} from "@/consts";
 
-export interface Props extends BaseHeadProps {}
+export type Props = Partial<Omit<BaseHeadProps, "siteTitle">>;
 
-const headProps = Astro.props as Props;
+const {
+  title = siteTitle,
+  description = site_description,
+  imageURL = site_image,
+  ...props
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang="pt-BR">
   <head>
-    <BaseHead {...headProps} />
+    <BaseHead {...props} {title} {description} {imageURL} {siteTitle} />
     <slot name="head" />
-    <Font cssVariable="--font-atkinson-body" preload />
-    <Font cssVariable="--font-jetbrains-mono" />
   </head>
-  <body class="min-h-screen bg-zinc-50 text-zinc-950 antialiased">
+  <body class="bg-zinc-50 min-h-screen text-zinc-950 antialiased">
     <Header />
     <main class="min-h-[calc(100vh-8rem)]">
       <slot />

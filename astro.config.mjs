@@ -1,5 +1,5 @@
 import sitemap from '@astrojs/sitemap';
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
@@ -13,26 +13,6 @@ export default defineConfig({
   ],
   output: "static",
   compressHTML: true,
-  fonts: [
-    {
-      provider: fontProviders.google(),
-      name: "Atkinson Hyperlegible",
-      cssVariable: "--font-atkinson-body",
-      weights: [400, 700],
-      styles: ["normal"],
-      subsets: ["latin", "latin-ext"],
-      fallbacks: ["sans-serif"],
-    },
-    {
-      provider: fontProviders.google(),
-      name: "JetBrains Mono",
-      cssVariable: "--font-jetbrains-mono",
-      weights: [400, 700],
-      styles: ["normal"],
-      subsets: ["latin", "latin-ext"],
-      fallbacks: ["monospace"],
-    },
-  ],
   prefetch: {
     prefetchAll: false,
   },
