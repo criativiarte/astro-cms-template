@@ -15,12 +15,12 @@ Esta versao usa login por token manual do GitHub. Nao ha OAuth App, PHP, servido
 
 ## Configuracao do CMS
 
-Antes de publicar o template, abra `public/admin/config.yml` e substitua os placeholders:
+Antes de publicar o template, abra `public/admin/config.yml`, substitua os placeholders de `repo` e `branch` e troque a URL local em `site_url` pelo domínio público do site:
 
 ```yml
 repo: "<usuario-ou-org>/<repositorio>"
 branch: "<branch>"
-site_url: "<url-do-site>"
+site_url: "http://localhost:4321"
 ```
 
 Exemplo:
@@ -100,6 +100,10 @@ O slug do post e gerado automaticamente a partir do titulo pelo CMS, como nome d
 As imagens de capa enviadas pelo CMS sao salvas em `src/assets/blog`. O CMS grava o caminho como `/src/assets/blog/...`, e o schema do Astro normaliza esse valor para um asset local durante o build. Assim o Astro consegue processar e otimizar a imagem.
 
 ## Comandos
+
+Requer Node.js 22.23.4 ou superior.
+
+O TypeScript fica na série 6 por compatibilidade com `@astrojs/check`, que ainda não aceita a série 7.
 
 ```bash
 npm install

@@ -1,18 +1,20 @@
 backend:
   name: github
-  # Troque pelo owner/repositório real.
-  # Exemplos:
-  # - usuario/nome-do-repositorio
-  # - organizacao/nome-do-repositorio
-  repo: "<usuario-ou-org>/<repositorio>"
+  auth_methods: [token]
+  # Troque pelo owner/repositório real, exemplo:
+  repo: "usuario-ou-org/nome-do-repositorio"
+  # Troque pela branch usada para publicar o site, exemplo:
+  branch: "main"
 
-  # Troque pela branch usada para publicar o site.
-  # Exemplo: main
-  branch: "<branch>"
+# URL local de desenvolvimento. Troque pela URL pública do site antes do deploy, exemplo
+site_url: "http://seu-dominio.com"
 
-# Troque pela URL pública do site.
-# Exemplo: https://seu-dominio.com
-site_url: "<url-do-site>"
+# Título do CMS no login e na aba do navegador após o carregamento.
+app_title: "Painel Admin"
+
+logo:
+  src: /favicon.png
+  show_in_header: true
 
 media_folder: /src/assets/blog
 public_folder: /src/assets/blog
