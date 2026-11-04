@@ -112,7 +112,9 @@ tags:
 
 Título e descrição são obrigatórios e não podem ficar vazios ou conter apenas espaços. O schema remove espaços no início e no fim desses campos. O status aceita somente `Publicado` ou `Rascunho`; se estiver ausente, vazio ou nulo, assume `Publicado`. Valores inválidos são rejeitados na validação do conteúdo.
 
-O slug do post e gerado automaticamente a partir do titulo pelo CMS, como nome do arquivo Markdown. O Astro também calcula a URL a partir do título, portanto alterar o título altera a URL do post. `updatedDate` e opcional, manual e nao recebe valor automatico. Posts com `status: "Rascunho"` nao aparecem no site.
+O slug do post é gerado a partir do título pelo CMS na criação e define o nome do arquivo Markdown. Ele pode ser ajustado no painel apenas antes de salvar o novo post. O Astro usa o identificador do arquivo (`post.id`) para montar a URL, portanto editar o título de um post existente mantém seu endereço. Renomear o arquivo manualmente ainda altera a URL. Os slugs das tags continuam sendo gerados com `slugify`.
+
+`updatedDate` e opcional, manual e nao recebe valor automatico. Posts com `status: "Rascunho"` nao aparecem no site.
 
 As imagens de capa enviadas pelo CMS sao salvas em `src/assets/blog`. O CMS grava o caminho como `/src/assets/blog/...`, e o schema do Astro normaliza esse valor para um asset local durante o build. Assim o Astro consegue processar e otimizar a imagem.
 

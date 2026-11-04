@@ -36,7 +36,7 @@ function slugifyValue(value: string) {
 }
 
 export function getPostSlug(post: Post) {
-  return slugifyValue(post.data.title);
+  return post.id;
 }
 
 export function getPostData(post: Post): PostData {

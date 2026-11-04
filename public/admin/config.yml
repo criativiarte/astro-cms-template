@@ -31,10 +31,12 @@ collections:
     folder: src/content/blog
     create: true
     delete: true
-    slug: "{{slug}}"
+    slug:
+      template: "{{slug}}"
+      editable: [create]
     extension: md
     format: frontmatter
-    summary: "{{title}} - {{pubDate}}"
+    summary: "{{title}}"
     fields:
       - label: Status
         name: status
