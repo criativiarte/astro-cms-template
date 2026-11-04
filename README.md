@@ -122,6 +122,12 @@ As imagens de capa enviadas pelo CMS sao salvas em `src/assets/blog`. O CMS grav
 
 A página `/politica-de-privacidade/` tem conteúdo fixo em `src/pages/politica-de-privacidade.astro` e um link no rodapé. Antes da publicação, preencha o nome do controlador e o e-mail de contato e revise as declarações conforme os tratamentos reais de dados, incluindo fornecedores, retenção e transferências internacionais. O modelo contempla Google Analytics, Google Ads, Meta Pixel e Google Fonts. O texto não instala essas ferramentas nem implementa gerenciamento de consentimento; a operação do site precisa refletir as condições descritas na política. Atualize também a data de revisão ao alterar o texto.
 
+## Índice para agentes (llms.txt)
+
+O endpoint `src/pages/llms.txt.ts` gera `dist/llms.txt` a cada build e também fica disponível em `/llms.txt` no desenvolvimento. Ele usa o título e a descrição de `src/consts.ts`, o domínio definido em `astro.config.mjs` e as mesmas funções de posts publicados utilizadas pelo blog e pelo RSS.
+
+O arquivo segue a estrutura do [exemplo do FastHTML](https://www.fastht.ml/docs/llms.txt): apresentação, seções de links com descrições e uma seção `Optional` para referências secundárias. Inclui páginas principais, artigos publicados, temas, privacidade, RSS e sitemap. Rascunhos e a área administrativa não entram no índice. Ao adicionar páginas fixas relevantes, inclua seus links no endpoint.
+
 ## Comandos
 
 Requer Node.js 22.23.4 ou superior.

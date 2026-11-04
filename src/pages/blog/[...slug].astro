@@ -2,7 +2,6 @@
 import { render } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import PostContent from "@/components/blog/post/PostContent.astro";
-import PostHead from "@/components/seo/PostHead.astro";
 import placeholder from "@/assets/post-placeholder.png";
 import { getPostData, getPublishedPosts, type Post } from "@/utils/blog";
 
@@ -18,26 +17,21 @@ export async function getStaticPaths() {
 const { post } = Astro.props as { post: Post };
 const postData = getPostData(post);
 const { Content } = await render(post);
-const description = postData.description;
-const imageURL = postData.coverImage?.src ?? placeholder.src;
 ---
 
 <Layout
   title={postData.title}
-  {description}
-  {imageURL}
+  description={postData.description}
+  image={postData.coverImage ?? placeholder}
   imageAlt={postData.title}
   canonicalURL={`/blog/${postData.slug}/`}
-  openGraphType="article"
+  article={{
+    publishedTime: postData.pubDate,
+    modifiedTime: postData.updatedDate,
+    author: postData.author,
+    tags: postData.tags,
+  }}
 >
-  <PostHead
-    slot="head"
-    publishedTime={postData.pubDate}
-    modifiedTime={postData.updatedDate}
-    author={postData.author}
-    tags={postData.tags}
-  />
-
   <PostContent
     title={postData.title}
     pubDate={postData.pubDate}

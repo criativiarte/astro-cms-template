@@ -1,30 +1,19 @@
 ---
 import "@/styles/global.css";
 
-import BaseHead from "@/components/seo/BaseHead.astro";
-import type { Props as BaseHeadProps } from "@/components/seo/BaseHead.astro";
+import Head, { type Props as HeadProps } from "@/components/seo/Head.astro";
 import Footer from "@/components/layout/Footer.astro";
 import Header from "@/components/layout/Header.astro";
-import {
-  SITE_DESCRIPTION as site_description,
-  SITE_IMAGE as site_image,
-  SITE_TITLE as siteTitle,
-} from "@/consts";
 
-export type Props = Partial<Omit<BaseHeadProps, "siteTitle">>;
+export type Props = HeadProps;
 
-const {
-  title = siteTitle,
-  description = site_description,
-  imageURL = site_image,
-  ...props
-} = Astro.props;
+const props = Astro.props;
 ---
 
 <!doctype html>
 <html lang="pt-BR">
   <head>
-    <BaseHead {...props} {title} {description} {imageURL} {siteTitle} />
+    <Head {...props} />
     <slot name="head" />
   </head>
   <body class="bg-zinc-50 min-h-screen text-zinc-950 antialiased">
