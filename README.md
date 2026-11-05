@@ -124,9 +124,13 @@ A página `/politica-de-privacidade/` tem conteúdo fixo em `src/pages/politica-
 
 ## Índice para agentes (llms.txt)
 
-O endpoint `src/pages/llms.txt.ts` gera `dist/llms.txt` a cada build e também fica disponível em `/llms.txt` no desenvolvimento. Ele usa o título e a descrição de `src/consts.ts`, o domínio definido em `astro.config.mjs` e as mesmas funções de posts publicados utilizadas pelo blog e pelo RSS.
+A integração [astro-llms-md](https://github.com/tfmurad/astro-llms-md), configurada em `astro.config.mjs`, lê as páginas HTML ao final do build e gera `llms.txt`, `llms-full.txt` e versões Markdown individuais. Os arquivos ficam disponíveis no site publicado e em `npm run preview`; não são gerados em `npm run dev`.
 
-O arquivo segue a estrutura do [exemplo do FastHTML](https://www.fastht.ml/docs/llms.txt): apresentação, seções de links com descrições e uma seção `Optional` para referências secundárias. Inclui páginas principais, artigos publicados, temas, privacidade, RSS e sitemap. Rascunhos e a área administrativa não entram no índice. Ao adicionar páginas fixas relevantes, inclua seus links no endpoint.
+O nome e a descrição gerais usam `src/consts.ts`, e o domínio usa `site` em `astro.config.mjs`. Novas páginas entram automaticamente. Os títulos vêm dos headings da página, com fallback para `<title>`, e as descrições vêm de `meta[name="description"]`. O conteúdo é convertido a partir de `<main>`, usando a limpeza padrão da biblioteca para scripts, estilos e elementos de navegação. Formulários e elementos ocultos não têm exclusão adicional configurada. Use `data-llms-ignore` para omitir trechos específicos.
+
+O índice aponta para os arquivos Markdown e agrupa páginas pelo primeiro segmento da URL. Essa organização substitui as seções e contagens por tag da integração local anterior. Admin e páginas de erro são excluídos explicitamente. Rascunhos não entram porque não geram páginas. Ao criar outras áreas que devem ficar de fora, adicione seus caminhos a `exclude`; a integração não usa `noindex` como filtro automático. Um pequeno hook acrescenta BOM UTF-8 aos dois arquivos de texto para preservar os acentos em navegadores que não recebem charset do servidor.
+
+A versão 3.0.2 precisa de uma correção de caminhos para descobrir e excluir páginas corretamente no Windows. O patch em `patches/astro-llms-md+3.0.2.patch` é aplicado automaticamente por `patch-package` no `postinstall`. Revise essa correção ao atualizar a biblioteca.
 
 ## Comandos
 
