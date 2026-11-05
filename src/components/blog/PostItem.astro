@@ -1,9 +1,9 @@
 ---
-import FormattedDate from "@/components/blog/post/FormattedDate.astro";
-import placeholder from "@/assets/post-placeholder.png";
+import FormattedDate from "@/components/blog/FormattedDate.astro";
+import placeholder from "@/assets/images/post-placeholder.png";
 import { Image } from "astro:assets";
 import { getPostData, type Post } from "@/utils/blog";
-import Tags from "@/components/blog/post/Tags.astro";
+import Tags from "@/components/blog/Tags.astro";
 
 interface Props {
   post: Post;

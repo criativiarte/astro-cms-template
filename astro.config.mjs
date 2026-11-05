@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   integrations: [
-    icon(),
+    icon({ iconDir: './src/assets/icons' }),
     sitemap({
       // Exclui o painel administrativo e qualquer rota dentro dele.
       filter: (page) => !/^\/admin(?:\/|$)/.test(new URL(page).pathname),

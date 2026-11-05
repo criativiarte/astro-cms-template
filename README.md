@@ -117,7 +117,7 @@ description: "Resumo usado no SEO e nas listagens."
 status: "Publicado"
 pubDate: "2026-01-01T00:00:00.000Z"
 updatedDate: "2026-01-02T00:00:00.000Z"
-coverImage: "/src/assets/blog/capa.png"
+coverImage: "/src/assets/images/blog/capa.png"
 author: "Equipe"
 tags:
   - Astro
@@ -140,7 +140,7 @@ O schema em [`src/content.config.ts`](src/content.config.ts) valida os dados. Ra
 
 O CMS gera o nome do arquivo a partir do título na criação e permite ajustar o slug antes do primeiro salvamento. O Astro usa `post.id` na URL `/blog/<slug>/`: alterar o título preserva o endereço; renomear o arquivo altera a URL. As tags usam slugs gerados por `slugify` e têm arquivos em `/blog/tags/<tag>/`.
 
-As capas enviadas pelo CMS são salvas em `src/assets/blog/`. O schema converte o caminho gravado no frontmatter para um asset local, permitindo o processamento das imagens pelo Astro.
+As capas enviadas pelo CMS são salvas em `src/assets/images/blog/`. O schema converte o caminho gravado no frontmatter para um asset local, permitindo o processamento das imagens pelo Astro.
 
 ## Integrações
 
@@ -198,7 +198,7 @@ Algumas coleções disponíveis no Iconify:
 
 As coleções adicionais são apenas exemplos; instale somente as que precisar.
 
-SVGs próprios podem ser colocados em `src/icons/`: `logo.svg` fica disponível como `<Icon name="logo" />`. Use `aria-hidden="true"` em ícones decorativos; ações sem texto visível precisam de um nome acessível, como `aria-label`.
+SVGs próprios podem ser colocados em `src/assets/icons/`, caminho definido em `iconDir`: `logo.svg` fica disponível como `<Icon name="logo" />`. Use `aria-hidden="true"` em ícones decorativos; ações sem texto visível precisam de um nome acessível, como `aria-label`.
 
 ### SEO: astro-seo-kit
 
@@ -247,10 +247,13 @@ Sitemap e arquivos para agentes são gerados no build; confira-os com `npm run b
 
 ```text
 src/
-├── assets/blog/       # Capas enviadas pelo CMS
+├── assets/
+│   ├── images/
+│   │   ├── blog/      # Capas enviadas pelo CMS
+│   │   └── post-placeholder.png
+│   └── icons/         # SVGs próprios para astro-icon
 ├── components/        # Componentes de layout, blog e SEO
 ├── content/blog/      # Posts
-├── icons/             # SVGs próprios
 ├── layouts/           # Estrutura compartilhada das páginas
 ├── pages/             # Home, admin, blog, privacidade e RSS
 ├── styles/            # Tailwind e estilos dos posts

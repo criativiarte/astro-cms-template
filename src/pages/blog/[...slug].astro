@@ -1,8 +1,8 @@
 ---
 import { render } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
-import PostContent from "@/components/blog/post/PostContent.astro";
-import placeholder from "@/assets/post-placeholder.png";
+import PostContent from "@/components/blog/PostContent.astro";
+import placeholder from "@/assets/images/post-placeholder.png";
 import { getPostData, getPublishedPosts, type Post } from "@/utils/blog";
 
 export async function getStaticPaths() {
