@@ -6,11 +6,11 @@ backend:
   # Troque pela branch usada para publicar o site, exemplo:
   branch: "main"
 
-# URL local de desenvolvimento. Troque pela URL pública do site antes do deploy, exemplo
+# URL local de desenvolvimento. Troque pela URL pública do site antes do deploy, exemplo:
 site_url: "http://seu-dominio.com"
 
-# Título do CMS no login e na aba do navegador após o carregamento.
-app_title: "Painel Admin"
+# Título do CMS no login e na aba do navegador após o carregamento.Troque pelo título do site antes do deploy, exemplo:
+app_title: "Painel | Título do Site"
 
 logo:
   src: /favicon.png
