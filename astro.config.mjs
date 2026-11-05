@@ -1,5 +1,5 @@
 import sitemap from '@astrojs/sitemap';
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import llms from 'astro-llms-md';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -8,6 +8,24 @@ import { SITE_DESCRIPTION, SITE_TITLE } from './src/consts';
 export default defineConfig({
   // Troque pela URL pública do site antes do deploy.
   site: "http://seu-dominio.com",
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Atkinson Hyperlegible',
+      cssVariable: '--font-atkinson',
+      weights: [400, 700],
+      styles: ['normal'],
+      fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'JetBrains Mono',
+      cssVariable: '--font-jetbrains-mono',
+      weights: [400, 700],
+      styles: ['normal'],
+      fallbacks: ['ui-monospace', 'SFMono-Regular', 'monospace'],
+    },
+  ],
   integrations: [
     sitemap({
       // Exclui o painel administrativo e qualquer rota dentro dele.
