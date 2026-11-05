@@ -130,7 +130,7 @@ O nome e a descrição gerais usam `src/consts.ts`, e o domínio usa `site` em `
 
 O índice aponta para os arquivos Markdown e agrupa páginas pelo primeiro segmento da URL. Essa organização substitui as seções e contagens por tag da integração local anterior. Admin e páginas de erro são excluídos explicitamente. Rascunhos não entram porque não geram páginas. Ao criar outras áreas que devem ficar de fora, adicione seus caminhos a `exclude`; a integração não usa `noindex` como filtro automático. Um pequeno hook acrescenta BOM UTF-8 aos dois arquivos de texto para preservar os acentos em navegadores que não recebem charset do servidor.
 
-A versão 3.0.2 precisa de uma correção de caminhos para descobrir e excluir páginas corretamente no Windows. O patch em `patches/astro-llms-md+3.0.2.patch` é aplicado automaticamente por `patch-package` no `postinstall`. Revise essa correção ao atualizar a biblioteca.
+O suporte a caminhos do Windows está corrigido na versão 3.0.3 da biblioteca; não é necessário aplicar um patch local.
 
 ## Comandos
 
