@@ -8,12 +8,12 @@ coverImage: null
 author: Template
 tags:
   - Astro
-  - Sveltia CMS
+  - CMS
 ---
 
 Este e um post simples para mostrar a estrutura basica do blog.
 
-Use este arquivo como referencia para entender os campos esperados pelo template. Depois de configurar o Sveltia CMS, o dono do site podera criar e editar posts diretamente em `/admin/`.
+Use este arquivo como referencia para entender os campos esperados pelo template. Depois de configurar o CMS, o dono do site podera criar e editar posts diretamente em `/admin/`.
 
 ## O que este post demonstra
 

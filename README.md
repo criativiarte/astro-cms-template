@@ -1,4 +1,4 @@
-# Astro + Sveltia CMS Template
+# Astro + CMS Template
 
 Template Astro estatico com blog em Content Collections e painel administrativo em `/admin/`.
 
@@ -9,7 +9,7 @@ Esta versao usa login por token manual do GitHub. Nao ha OAuth App, PHP, servido
 ## Estrutura
 
 - `src/pages/index.astro`: home com conteúdo fixo diretamente no HTML.
-- `src/pages/admin/index.astro`: página do painel Sveltia CMS, carregado por CDN.
+- `src/pages/admin/index.astro`: página do painel CMS, carregado por CDN.
 - `src/content/blog`: posts em Markdown/MDX.
 - `src/content.config.ts`: schema de validação dos posts.
 - `public/admin/config.yml`: configuração do Sveltia CMS, servida em `/admin/config.yml`.
@@ -36,7 +36,7 @@ Exemplo:
 backend:
   name: github
   auth_methods: [token]
-  repo: "criativiarte/astro-sveltia-cms-template"
+  repo: "criativiarte/astro-cms-template"
   branch: "main"
 
 site_url: "https://seu-dominio.com"
@@ -107,7 +107,7 @@ coverImage: "/src/assets/blog/capa.png"
 author: "Equipe"
 tags:
   - Astro
-  - Sveltia CMS
+  - CMS
 ```
 
 Título e descrição são obrigatórios e não podem ficar vazios ou conter apenas espaços. O schema remove espaços no início e no fim desses campos. O status aceita somente `Publicado` ou `Rascunho`; se estiver ausente, vazio ou nulo, assume `Publicado`. Valores inválidos são rejeitados na validação do conteúdo.
