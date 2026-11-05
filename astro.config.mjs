@@ -2,6 +2,7 @@ import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import llms from 'astro-llms-md';
+import icon from 'astro-icon';
 import { readFile, writeFile } from 'node:fs/promises';
 import { SITE_DESCRIPTION, SITE_TITLE } from './src/consts';
 
@@ -27,6 +28,7 @@ export default defineConfig({
     },
   ],
   integrations: [
+    icon(),
     sitemap({
       // Exclui o painel administrativo e qualquer rota dentro dele.
       filter: (page) => !/^\/admin(?:\/|$)/.test(new URL(page).pathname),

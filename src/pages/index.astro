@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Container from "@/components/layout/Container.astro";
+import { Icon } from "astro-icon/components";
 ---
 
 <Layout>
@@ -17,8 +18,12 @@ import Container from "@/components/layout/Container.astro";
         gerenciados por um CMS Git-backed.
       </p>
       <div class="flex sm:flex-row flex-col gap-3">
-        <a class="button button-primary" href="/blog"> Ver posts </a>
-        <a class="button button-secondary" href="/admin/" target="_blank">
+        <a class="gap-2 button button-primary" href="/blog">
+          <Icon name="lucide:book-open" size={20} aria-hidden="true" />
+          Ver posts
+        </a>
+        <a class="gap-2 button button-secondary" href="/admin/" target="_blank">
+          <Icon name="lucide:app-window" size={20} aria-hidden="true" />
           Abrir admin
         </a>
       </div>
