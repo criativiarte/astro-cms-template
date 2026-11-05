@@ -1,0 +1,309 @@
+name: Astro SSG CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: CI/CD
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BUILD_OUTPUT_DIR: dist
+      DEPLOY_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+      ARCHIVE_NAME: site-${{ github.run_id }}-${{ github.run_attempt }}.tar.gz
+
+    steps:
+      - name: Set deployment environment path
+        run: |
+          printf 'DEPLOY_ENV_FILE=%s/deployment.env\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Validate deployment configuration
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+
+          for variable_name in SERVER_HOST SERVER_USER SERVER_SSH_KEY SERVER_KNOWN_HOSTS; do
+            if [ -z "${!variable_name:-}" ]; then
+              echo "GitHub Repository Secret $variable_name is empty or was not configured."
+              exit 1
+            fi
+          done
+
+          [[ "$SERVER_HOST" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]] || {
+            echo "SERVER_HOST contains unsupported characters."
+            exit 1
+          }
+
+          [[ "$SERVER_USER" =~ ^[A-Za-z0-9._-]+$ ]] || {
+            echo "SERVER_USER contains unsupported characters."
+            exit 1
+          }
+
+      - name: Configure SSH
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_KNOWN_HOSTS: ${{ secrets.SERVER_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SERVER_SSH_KEY" > "$HOME/.ssh/server_key"
+
+          printf '%s\n' "$SERVER_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          ssh-keygen -F "$SERVER_HOST" -f "$HOME/.ssh/known_hosts" >/dev/null || {
+            echo "SERVER_KNOWN_HOSTS must contain a previously verified host key matching SERVER_HOST."
+            exit 1
+          }
+
+          {
+            printf 'Host deployment-target\n'
+            printf '  HostName %s\n' "$SERVER_HOST"
+            printf '  User %s\n' "$SERVER_USER"
+            printf '  IdentityFile %s/.ssh/server_key\n' "$HOME"
+            printf '  IdentitiesOnly yes\n'
+            printf '  BatchMode yes\n'
+            printf '  StrictHostKeyChecking yes\n'
+            printf '  UserKnownHostsFile %s/.ssh/known_hosts\n' "$HOME"
+            printf '  ConnectTimeout 15\n'
+          } > "$HOME/.ssh/config"
+
+          chmod 600 "$HOME/.ssh/server_key" "$HOME/.ssh/known_hosts" "$HOME/.ssh/config"
+          ssh deployment-target true
+
+      - name: Fetch optional deployment environment
+        run: |
+          set -euo pipefail
+          umask 077
+          ssh deployment-target 'if [ -f "$HOME/.env" ]; then cat -- "$HOME/.env"; fi' > "$DEPLOY_ENV_FILE"
+          chmod 600 "$DEPLOY_ENV_FILE"
+
+      - name: Remove private SSH key before running project scripts
+        run: rm -f -- "$HOME/.ssh/server_key"
+
+      - name: Install dependencies
+        run: node --env-file="$DEPLOY_ENV_FILE" "$(command -v npm)" ci --include=dev
+
+      - name: Run lint if configured
+        run: node --env-file="$DEPLOY_ENV_FILE" "$(command -v npm)" run lint --if-present
+
+      - name: Run tests if configured
+        run: node --env-file="$DEPLOY_ENV_FILE" "$(command -v npm)" run test --if-present
+
+      - name: Build static site
+        run: node --env-file="$DEPLOY_ENV_FILE" "$(command -v npm)" run build
+
+      - name: Remove local deployment environment
+        if: always()
+        run: rm -f -- "$DEPLOY_ENV_FILE"
+
+      - name: Validate build output
+        run: |
+          set -euo pipefail
+
+          [ -d "$BUILD_OUTPUT_DIR" ] || {
+            echo "Build output directory '$BUILD_OUTPUT_DIR' was not found."
+            exit 1
+          }
+
+          [ -f "$BUILD_OUTPUT_DIR/index.html" ] || {
+            echo "Static build did not generate $BUILD_OUTPUT_DIR/index.html."
+            exit 1
+          }
+
+          if find "$BUILD_OUTPUT_DIR" -type l -print -quit | grep -q .; then
+            echo "The build output contains a symbolic link; deployment was stopped."
+            exit 1
+          fi
+
+      - name: Create deployment archive
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$DEPLOY_ID" > "$BUILD_OUTPUT_DIR/deployment-id.txt"
+          tar --exclude=.env --exclude='.env.*' -czf "$ARCHIVE_NAME" -C "$BUILD_OUTPUT_DIR" .
+
+      - name: Restore private SSH key for deployment
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$SERVER_SSH_KEY" > "$HOME/.ssh/server_key"
+          chmod 600 "$HOME/.ssh/server_key"
+
+      - name: Resolve target directory
+        id: resolve_target_dir
+        run: |
+          set -euo pipefail
+
+          TARGET_DIR="$(ssh deployment-target '
+            set -eu
+            set -- "$HOME"/*.configr.cloud
+            if [ "$#" -eq 1 ] && [ ! -e "$1" ] && [ ! -L "$1" ]; then
+              echo "No *.configr.cloud application directory found under remote HOME: $HOME. Check SERVER_USER and create the application in the hosting panel." >&2
+              exit 1
+            fi
+            if [ "$#" -ne 1 ]; then
+              echo "Multiple *.configr.cloud application directories found; refusing to choose a deployment target." >&2
+              printf "Candidate: %s\n" "$@" >&2
+              exit 1
+            fi
+            app_link="$1"
+            [ -d "$app_link" ] || { echo "The application path is not an accessible directory: $app_link" >&2; exit 1; }
+            home_real="$(realpath -e "$HOME")"
+            app_real="$(realpath -e "$app_link")"
+            if [ -L "$app_link" ]; then
+              if [ "$(stat -c %u -- "$app_link")" != 0 ] || [ "$app_real" != "/srv/$(basename "$app_link")" ]; then
+                echo "Application link rejected: only a root-owned hosting link to /srv/<same-application-name> is accepted: $app_link -> $app_real" >&2
+                exit 1
+              fi
+            elif [ "$(dirname "$app_real")" != "$home_real" ]; then
+              echo "The application directory is outside the expected remote HOME: $app_real" >&2
+              exit 1
+            fi
+            target="$app_real/www"
+            [ ! -L "$target" ] || { echo "The www publication directory is a symbolic link; this template requires a real www directory: $target" >&2; exit 1; }
+            [ -d "$target" ] || { echo "The application www directory was not found or is inaccessible: $target. Check the application created in the hosting panel." >&2; exit 1; }
+            [ -w "$target" ] && [ -x "$target" ] || { echo "The SSH user cannot write to or traverse the www directory: $target" >&2; exit 1; }
+            printf "%s\n" "$target"
+          ')"
+
+          [[ "$TARGET_DIR" =~ ^/[A-Za-z0-9._/-]+$ ]] || {
+            echo "The resolved target directory contains unsupported characters."
+            exit 1
+          }
+
+          printf 'target_dir=%s\n' "$TARGET_DIR" >> "$GITHUB_OUTPUT"
+          echo "Target directory validated: $TARGET_DIR"
+
+      - name: Upload deployment archive
+        run: scp "$ARCHIVE_NAME" "deployment-target:"
+
+      - name: Publish static files with rollback
+        env:
+          TARGET_DIR: ${{ steps.resolve_target_dir.outputs.target_dir }}
+        run: |
+          set -euo pipefail
+
+          ssh deployment-target "bash -s -- '$ARCHIVE_NAME' '$TARGET_DIR' '$DEPLOY_ID'" <<'REMOTE_SCRIPT'
+          set -Eeuo pipefail
+
+          archive_path="$HOME/$1"
+          target_dir="$2"
+          deploy_id="$3"
+          site_root="$(dirname "$target_dir")"
+          stage_dir="$HOME/.www-stage-$deploy_id"
+          backup_dir="$HOME/.backup-$deploy_id"
+          target_changed=0
+          previous_id=''
+          target_attributes=''
+
+          copy_contents() {
+            find "$1" -mindepth 1 -maxdepth 1 -exec cp -a -t "$2" -- {} +
+          }
+
+          assert_target_attributes() {
+            [ "$(stat -c '%a:%u:%g' "$target_dir")" = "$target_attributes" ]
+          }
+
+          check_site() {
+            expected_id="$1"
+            [ -n "$expected_id" ] || { echo "Previous deployment has no version identifier; recovery cannot be confirmed." >&2; return 1; }
+            [ -f "$target_dir/index.html" ] || return 1
+            [ "$(cat "$target_dir/deployment-id.txt")" = "$expected_id" ] || return 1
+            return 0
+          }
+
+          restore_previous() {
+            find "$target_dir" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} + || return 1
+            copy_contents "$backup_dir" "$target_dir" || return 1
+            assert_target_attributes || return 1
+            check_site "$previous_id" || return 1
+          }
+
+          finish() {
+            status=$?
+            trap - EXIT
+            set +e
+            if [ "$status" -ne 0 ] && [ "$target_changed" -eq 1 ]; then
+              echo "Deployment failed; restoring the previous files."
+              if restore_previous; then
+                echo "Previous static site restored and file checks passed."
+                rm -rf -- "$backup_dir"
+              else
+                echo "Rollback failed or could not be verified. Backup retained at: $backup_dir" >&2
+              fi
+            elif [ "$status" -eq 0 ] || [ "$target_changed" -eq 0 ]; then
+              rm -rf -- "$backup_dir"
+            fi
+            rm -rf -- "$stage_dir"
+            rm -f -- "$archive_path"
+            exit "$status"
+          }
+          trap finish EXIT
+
+          [ -f "$archive_path" ]
+          [ -d "$target_dir" ]
+          [ ! -L "$target_dir" ]
+          [ ! -L "$site_root" ]
+          target_attributes="$(stat -c '%a:%u:%g' "$target_dir")"
+          if [ -f "$target_dir/deployment-id.txt" ]; then previous_id="$(cat "$target_dir/deployment-id.txt")"; fi
+          rm -rf -- "$stage_dir" "$backup_dir"
+          mkdir -m 700 -- "$stage_dir" "$backup_dir"
+          tar -xzf "$archive_path" -C "$stage_dir" --no-same-owner --no-same-permissions
+          [ -f "$stage_dir/index.html" ]
+          [ "$(cat "$stage_dir/deployment-id.txt")" = "$deploy_id" ]
+          copy_contents "$target_dir" "$backup_dir"
+          target_changed=1
+          find "$target_dir" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+          copy_contents "$stage_dir" "$target_dir"
+          assert_target_attributes
+          check_site "$deploy_id" || { echo "Static site validation failed." >&2; exit 1; }
+          echo "Static site published; file checks confirmed deployment $deploy_id."
+          REMOTE_SCRIPT
+
+      - name: Show published files
+        env:
+          TARGET_DIR: ${{ steps.resolve_target_dir.outputs.target_dir }}
+        run: ssh deployment-target "ls -la -- '$TARGET_DIR'"
+
+      - name: Remove temporary files and credentials
+        if: always()
+        run: |
+          rm -f -- "$DEPLOY_ENV_FILE" "$ARCHIVE_NAME"
+
+          if [ -f "$HOME/.ssh/server_key" ] && [ -f "$HOME/.ssh/config" ]; then
+            ssh deployment-target "rm -f -- '$ARCHIVE_NAME'" || true
+          fi
+
+          rm -f -- \
+            "$HOME/.ssh/server_key" \
+            "$HOME/.ssh/known_hosts" \
+            "$HOME/.ssh/config"
