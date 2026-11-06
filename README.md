@@ -22,7 +22,7 @@ O conteúdo dos posts fica em Markdown no repositório. As edições feitas no C
 - Painel em `/admin/`, com autenticação por token do GitHub e edição de posts.
 - Metadados de SEO, Open Graph, cartão do Twitter/X e JSON-LD para artigos.
 - Fontes servidas pelo próprio site, ícones SVG e otimização de imagens de capa.
-- Sitemap, RSS, `llms.txt` e versões Markdown gerados no build.
+- Sitemap, `robots.txt`, RSS, `llms.txt` e versões Markdown gerados no build.
 - Workflow de publicação por SSH/SCP.
 
 ## Início rápido
@@ -51,12 +51,12 @@ O TypeScript está mantido na série 6 para compatibilidade com a versão de `@a
 
 ### Identidade e domínio
 
-| Arquivo                                      | O que configurar                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| [`src/consts.ts`](src/consts.ts)             | `SITE_TITLE`, `SITE_DESCRIPTION` e `SITE_IMAGE`.                         |
-| [`astro.config.mjs`](astro.config.mjs)       | `site`, com a URL pública usada em canonical, sitemap, RSS e `llms.txt`. |
-| [`public/favicon.png`](public/favicon.png)   | Ícone do site e logo usada pelo CMS.                                     |
-| [`public/og-image.png`](public/og-image.png) | Imagem padrão de compartilhamento.                                       |
+| Arquivo                                                            | O que configurar                                                                        |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`src/consts.ts`](src/consts.ts)                                   | `SITE_TITLE`, `SITE_DESCRIPTION` e `SITE_IMAGE`.                                        |
+| [`astro.config.mjs`](astro.config.mjs)                             | `site`, com a URL pública usada em canonical, `robots.txt`, sitemap, RSS e `llms.txt`.  |
+| [`public/favicon.png`](public/favicon.png)                         | Ícone do site e logo usada pelo CMS.                                                    |
+| [`src/assets/images/og-image.png`](src/assets/images/og-image.png) | Imagem padrão de compartilhamento.                                                      |
 
 Em `astro.config.mjs`, substitua o domínio de exemplo:
 
@@ -228,20 +228,21 @@ import Layout from "@/layouts/Layout.astro";
 
 O adapter gera descrição, canonical, Open Graph e cartão do Twitter/X. A página de post já fornece seus metadados de artigo.
 
-### Sitemap, RSS e arquivos para agentes
+### Sitemap, robots.txt, RSS e arquivos para agentes
 
-| Recurso             | Implementação                                           | Saída                                                      |
-| ------------------- | ------------------------------------------------------- | ---------------------------------------------------------- |
-| Sitemap             | `@astrojs/sitemap`                                      | `/sitemap-index.xml` e mapas referenciados.                |
-| RSS                 | `@astrojs/rss`, em [`rss.xml.js`](src/pages/rss.xml.js) | `/rss.xml`, com resumos e datas dos posts publicados.      |
-| Índice para agentes | `astro-llms-md`                                         | `/llms.txt`, `/llms-full.txt` e versões `.md` das páginas. |
+| Recurso             | Implementação                                                     | Saída                                                      |
+| ------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------- |
+| Sitemap             | `@astrojs/sitemap`                                                | `/sitemap-index.xml` e mapas referenciados.                |
+| Robots              | Endpoint em [`robots.txt.ts`](src/pages/robots.txt.ts)            | `/robots.txt`, com referência automática ao sitemap.       |
+| RSS                 | `@astrojs/rss`, em [`rss.xml.js`](src/pages/rss.xml.js)           | `/rss.xml`, com resumos e datas dos posts publicados.      |
+| Índice para agentes | `astro-llms-md`                                                   | `/llms.txt`, `/llms-full.txt` e versões `.md` das páginas. |
 
 O `llms.txt` agrupa os links pelo primeiro segmento da URL e aponta para os arquivos Markdown. Os títulos vêm dos headings, com fallback para `<title>`; as descrições vêm de `meta[name="description"]`. O conteúdo de `<main>` é convertido com a limpeza padrão da biblioteca. Use `data-llms-ignore` para omitir trechos específicos.
 
 Sitemap e arquivos para agentes são gerados no build; confira-os com `npm run build` seguido de `npm run preview`. Um hook adiciona BOM UTF-8 aos dois arquivos `llms*.txt`, preservando os acentos quando o servidor não informa o charset.
 
 > [!NOTE]
-> O admin fica fora do sitemap e dos arquivos para agentes. Para excluir outras páginas, ajuste separadamente o filtro de `sitemap()` e a opção `exclude` de `llms()`. A prop `noindex` não altera essas listas automaticamente.
+> O `/admin/` e qualquer página marcada com `noindex` ficam automaticamente fora do sitemap. Nos arquivos para agentes (`llms.txt`), o `/admin/` também já está excluído; para omitir outras páginas deles, adicione-as na opção `exclude` de `llms()` em `astro.config.mjs`.
 
 ## Estrutura do projeto
 
@@ -250,20 +251,20 @@ src/
 ├── assets/
 │   ├── images/
 │   │   ├── blog/      # Capas enviadas pelo CMS
+│   │   ├── og-image.png
 │   │   └── post-placeholder.png
 │   └── icons/         # SVGs próprios para astro-icon
 ├── components/        # Componentes de layout, blog e SEO
 ├── content/blog/      # Posts
 ├── layouts/           # Estrutura compartilhada das páginas
-├── pages/             # Home, admin, blog, privacidade e RSS
+├── pages/             # Home, admin, blog, privacidade, robots.txt e RSS
 ├── styles/            # Tailwind e estilos dos posts
 ├── utils/             # Consulta e organização do conteúdo
 ├── consts.ts          # Identidade e metadados padrão
 └── content.config.ts  # Schema das coleções
 public/
 ├── admin/config.yml   # Configuração do CMS
-├── favicon.png
-└── og-image.png
+└── favicon.png
 ```
 
 ## Deploy
