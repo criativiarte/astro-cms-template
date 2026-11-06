@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import llms from 'astro-llms-md';
 import icon from 'astro-icon';
+import { readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { SITE_DESCRIPTION, SITE_TITLE } from './src/consts';
 
@@ -30,8 +31,11 @@ export default defineConfig({
   integrations: [
     icon({ iconDir: './src/assets/icons' }),
     sitemap({
-      // Exclui o painel administrativo e qualquer rota dentro dele.
-      filter: (page) => !/^\/admin(?:\/|$)/.test(new URL(page).pathname),
+      // Exclui qualquer página marcada com noindex no HTML gerado.
+      filter: (page) =>
+        !/<meta[^>]+name="robots"[^>]+noindex/i.test(
+          readFileSync(`dist${new URL(page).pathname}index.html`, 'utf8'),
+        ),
     }),
     llms({
       name: SITE_TITLE,
