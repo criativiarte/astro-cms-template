@@ -12,18 +12,12 @@ interface Props {
 
 const { post, activeTag } = Astro.props;
 
-const {
-  title,
-  slug,
-  pubDate,
-  coverImage,
-  tags,
-} = getPostData(post);
+const { title, slug, pubDate, coverImage, tags } = getPostData(post);
 ---
 
-<article class="overflow-hidden rounded-lg border border-zinc-200 bg-white">
-  <a href={"/blog/" + slug} data-astro-prefetch="hover" class="block">
-    <div class="overflow-hidden border-b border-zinc-200 relative">
+<article class="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+  <a href={`/blog/${slug}/`} data-astro-prefetch="hover" class="block">
+    <div class="relative border-zinc-200 border-b overflow-hidden">
       <Image
         width={670}
         widths={[320, 480, 670]}
@@ -33,23 +27,23 @@ const {
         decoding="async"
         loading="lazy"
         format="webp"
-        class="h-full w-full aspect-video object-center object-cover"
+        class="w-full h-full object-center object-cover aspect-video"
       />
       <Tags
         tags={tags}
-        class="justify-end absolute m-4 top-0 right-0 z-50"
+        class="top-0 right-0 z-50 absolute justify-end m-4"
         activeTag={activeTag}
       />
     </div>
   </a>
 
   <div class="space-y-1 p-5">
-    <a href={"/blog/" + slug} data-astro-prefetch="hover" class="block">
-      <h2 class="heading-3 hover:text-zinc-600">{title}</h2>
+    <a href={`/blog/${slug}/`} data-astro-prefetch="hover" class="block">
+      <h2 class="hover:text-zinc-600 heading-3">{title}</h2>
     </a>
     {
       pubDate && (
-        <p class="text-sm text-zinc-500">
+        <p class="text-zinc-500 text-sm">
           <FormattedDate date={pubDate} />
         </p>
       )

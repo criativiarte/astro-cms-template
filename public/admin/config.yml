@@ -7,7 +7,7 @@ backend:
   branch: "main"
 
 # URL local de desenvolvimento. Troque pela URL pública do site antes do deploy, exemplo:
-site_url: "http://seu-dominio.com"
+site_url: "https://seu-dominio.com"
 
 # Título do CMS no login e na aba do navegador após o carregamento.Troque pelo título do site antes do deploy, exemplo:
 app_title: "Painel | Título do Site"

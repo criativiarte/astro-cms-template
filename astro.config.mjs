@@ -8,7 +8,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from './src/consts';
 
 export default defineConfig({
   // Troque pela URL pública do site antes do deploy.
-  site: "http://seu-dominio.com",
+  site: "https://seu-dominio.com",
   fonts: [
     {
       provider: fontProviders.google(),

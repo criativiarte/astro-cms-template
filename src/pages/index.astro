@@ -18,13 +18,18 @@ import { Icon } from "astro-icon/components";
         gerenciados por um CMS Git-backed.
       </p>
       <div class="flex sm:flex-row flex-col gap-3">
-        <a class="gap-2 button button-primary" href="/blog">
-          <Icon name="lucide:arrow-right" size={20} aria-hidden="true" />
+        <a class="gap-2 button button-primary" href="/blog/">
           Ver posts
-        </a>
-        <a class="gap-2 button button-secondary" href="/admin/" target="_blank">
           <Icon name="lucide:arrow-right" size={20} aria-hidden="true" />
+        </a>
+        <a
+          class="gap-2 button button-secondary"
+          href="/admin/"
+          target="_blank"
+          rel="nofollow"
+        >
           Abrir admin
+          <Icon name="lucide:arrow-right" size={20} aria-hidden="true" />
         </a>
       </div>
     </section>
