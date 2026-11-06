@@ -3,8 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import llms from 'astro-llms-md';
 import icon from 'astro-icon';
-import { readFileSync } from 'node:fs';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { SITE_DESCRIPTION, SITE_TITLE } from './src/consts';
 
 export default defineConfig({
@@ -45,11 +44,10 @@ export default defineConfig({
     {
       name: 'llms-utf8',
       hooks: {
-        'astro:build:done': async ({ dir }) => {
+        'astro:build:done': () => {
           // Identifica o UTF-8 ao abrir os arquivos de texto no navegador.
-          for (const name of ['llms.txt', 'llms-full.txt']) {
-            const file = new URL(name, dir);
-            await writeFile(file, '\uFEFF' + (await readFile(file, 'utf8')).replace(/^\uFEFF/, ''));
+          for (const file of ['dist/llms.txt', 'dist/llms-full.txt']) {
+            writeFileSync(file, '\uFEFF' + readFileSync(file, 'utf8'));
           }
         },
       },
